@@ -2,7 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var sleep = require('sleep-async')();
 
-var FILE_PATH = 'x/x/y/y/flightpath.txt';
+var FILE_PATH = './flightpath.txt';
 
 var lines_fp = 7;
 var file_data = "none";
@@ -46,7 +46,7 @@ process.argv.forEach(function (val, index, array) {
 	console.log(new_attack.attack_zone);
 });
 
-fs.readFile('/Users/RB/Downloads/mission_3_2.txt', function read(err, data) {
+fs.readFile(FILE_PATH, function read(err, data) {
 	if(err){
 		console.log(err);
 	}
@@ -73,7 +73,7 @@ http.createServer(function (req, res) {
 		}
 		console.log("markers");
 		res.writeHead(200, {"Content-Type": "text/html"});
-		res.write("<!DOCTYPE html><html><head><title>FP Plotter</title><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.0.1/dist/leaflet.css\" /><script src=\"https://unpkg.com/leaflet@1.0.1/dist/leaflet.js\"></script></script><style>#map {width: 960px;height:500px;}</style></head><body><div id=\"map\"></div><script>var map = L.map('map',{center: ["+cent_lat+", "+cent_lon+"],zoom: 15});L.tileLayer(\'http://{s}.tile.osm.org/{z}/{x}/{y}.png\', {attribution: \'&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors\'}).addTo(map);" +new_attack.attack_zone + markers.join('') +"</script></body></html>");
+		res.write("<!DOCTYPE html><html><head><title>FP Plotter</title><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.0.1/dist/leaflet.css\" /><script src=\"https://unpkg.com/leaflet@1.0.1/dist/leaflet.js\"></script></script><style>#map {width: 1000px;height:1000px;}</style></head><body><div id=\"map\"></div><script>var map = L.map('map',{center: ["+cent_lat+", "+cent_lon+"],zoom: 15});L.tileLayer(\'http://{s}.tile.osm.org/{z}/{x}/{y}.png\', {attribution: \'&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors\'}).addTo(map);" +new_attack.attack_zone + markers.join('') +"</script></body></html>");
 		console.log("<!DOCTYPE html><html><head><title>FP Plotter</title><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.0.1/dist/leaflet.css\" /><script src=\"https://unpkg.com/leaflet@1.0.1/dist/leaflet.js\"></script></script><style>#map {width: 960px;height:500px;}</style></head><body><div id=\"map\"></div><script>var map = L.map('map',{center: ["+cent_lat+", "+cent_lon+"],zoom: 15});L.tileLayer(\'http://{s}.tile.osm.org/{z}/{x}/{y}.png\', {attribution: \'&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors\'}).addTo(map);" +new_attack.attack + markers.join('') +"</script></body></html>");
 	});
 }).listen(8070);
