@@ -3,7 +3,9 @@
 to run plotter:
 
 $npm install sleep-async
+
 to install sleep-async
+
 node ucla_plotter.js (number_of_waypoints) (attack circle radius (meters)) (attack circle latitude) (attack circle longtitude)
 
 so:
