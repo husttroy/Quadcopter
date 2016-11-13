@@ -10,4 +10,4 @@ so:
 
 ***make sure to open ucla_plotter.js and specify the flight path .txt file***
 
-then open a browser ( Chrome ) and type **127.0.0.1:8070** in the address bar.
+then open a browser ( Chrome, Firefox ) and type **127.0.0.1:8070** in the address bar.
