@@ -2,6 +2,14 @@
 
 to run plotter:
 
+$sudo apt-get install npm
+
+to install npm
+
+$sudo apt-get install nodejs
+
+to install nodejs
+
 $npm install sleep-async
 
 to install sleep-async
