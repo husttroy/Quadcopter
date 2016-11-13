@@ -2,6 +2,8 @@ var http = require('http');
 var fs = require('fs');
 var sleep = require('sleep-async')();
 
+var FILE_PATH = 'x/x/y/y/flightpath.txt';
+
 var lines_fp = 7;
 var file_data = "none";
 var f_sep = '';
