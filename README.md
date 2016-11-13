@@ -2,21 +2,21 @@
 
 to run plotter:
 
-$sudo apt-get install npm
+$ sudo apt-get install npm
 
 to install npm
 
-$sudo apt-get install nodejs
-
-to install nodejs
-
-$npm install sleep-async
+$ npm install sleep-async
 
 to install sleep-async
 
 $ sudo apt-get install python-software-properties
 
 $ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+
+$ sudo apt-get install nodejs
+
+to install nodejs
 
 node ucla_plotter.js (number_of_waypoints) (attack circle radius (meters)) (attack circle latitude) (attack circle longtitude)
 
