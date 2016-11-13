@@ -6,6 +6,9 @@ $npm install sleep-async
 
 to install sleep-async
 
+$ sudo apt-get install python-software-properties
+$ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+
 node ucla_plotter.js (number_of_waypoints) (attack circle radius (meters)) (attack circle latitude) (attack circle longtitude)
 
 so:
