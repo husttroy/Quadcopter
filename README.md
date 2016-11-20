@@ -18,7 +18,7 @@ $ sudo apt-get install nodejs
 
 to install nodejs
 
-node ucla_plotter.js (number_of_waypoints) (attack circle radius (meters)) (attack circle latitude) (attack circle longtitude)
+node ucla_plotter.js (maximum number_of_waypoints) (attack circle radius (meters)) 
 
 so:
 
