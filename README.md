@@ -1,6 +1,6 @@
 # Quadcopter
 
-to run plotter:
+Prerequisite:
 
 $ sudo apt-get install npm
 
@@ -18,12 +18,10 @@ $ sudo apt-get install nodejs
 
 to install nodejs
 
-node ucla_plotter.js (maximum number_of_waypoints) (attack circle radius (meters)) 
+Run plotter in the Plotter folder
 
-so:
+$ node ucla_plotter.js 8 10 
 
-**node ucla_plotter.js 8 10 
-
-***make sure to open ucla_plotter.js and specify the flight path .txt file***
+### node ucla_plotter.js (maximum number_of_waypoints) (attack circle radius (meters)) 
 
 then open a browser ( Chrome, Firefox ) and type **127.0.0.1:8070** in the address bar.
