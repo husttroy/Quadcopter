@@ -2,8 +2,9 @@ var http = require('http');
 var fs = require('fs');
 var sleep = require('sleep-async')();
 
-var FILE_PATH = '/home/richter/ucla/Quadcopter-master/Plotter/flightpath.txt';
-var HTML_FILE_PATH = '/home/richter/ucla/Quadcopter-master/Plotter/index.html';
+There should be an error at line 5, it's just a reminder to set your file paths
+var FILE_PATH = '*******************************/flightpath.txt';
+var HTML_FILE_PATH = '***************/index.html';
 var lines_fp = 7;
 var file_data = "none";
 var f_sep = '';
