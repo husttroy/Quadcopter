@@ -2,7 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var sleep = require('sleep-async')();
 
-var FILE_PATH = './flightpath.txt';
+var FILE_PATH = './flightpath_fix.txt';
 var HTML_FILE_PATH = './index.html';
 var lines_fp = 7;
 var file_data = "none";
@@ -45,7 +45,7 @@ fs.readFile(FILE_PATH, function read(err, data) {
 		console.log(err);
 	}
 	var f_content = data;
-	f_sep = data.toString().split('\n')
+	f_sep = data.toString().split('\n');
 	console.log(getLatitudeForLine(1, f_sep));
 	console.log(getLongtitudeForLine(1, f_sep));
 	console.log("server starting...");
