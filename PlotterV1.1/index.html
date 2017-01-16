@@ -36,6 +36,8 @@ var attackCircle1;
 
 var attackCircle2;
 
+waypoints_go_here
+
 function onMapClick(e){
 	if(attackCircle1 != undefined){
 		m1.removeLayer(attackCircle1);
@@ -54,8 +56,6 @@ m2.on('click', onMapClick);
 
 m1.sync(m2);
 m2.sync(m1);
-
-waypoints_go_here
 
 </script>
 
