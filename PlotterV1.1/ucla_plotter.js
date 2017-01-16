@@ -2,8 +2,8 @@ var http = require('http');
 var fs = require('fs');
 var sleep = require('sleep-async')();
 
-var ORIGINAL_FP_PATH = './flightpath.txt';
-var FIX_FP_PATH = './flightpath.txt';
+var ORIGINAL_FP_PATH = './working_path.txt';
+var FIX_FP_PATH = './working_path.txt';
 
 var f_sep_original = '';
 var f_sep_fix = '';
@@ -72,7 +72,7 @@ fs.readFile("./index.html", function read(err, data){
 });
 
 http.createServer(function (req, res) {
-	sleep.sleep(4000, function(){
+		console.log("Started server")
 	  	var cent_lat = getLatitudeForLine(1, f_sep_original);
 		var cent_lon = getLongtitudeForLine(1, f_sep_original);
 
@@ -83,7 +83,7 @@ http.createServer(function (req, res) {
 		var markers = [];
 		var markers2 = [];
 
-console.log(new_attack.attack_radius)
+		console.log(new_attack.attack_radius)
 		for (var i = 1; i < n_waypoints_1 + 1; i+=1) {
 			if(f_sep_original[i].split('\t')[3] == 16){
 				lat_arr.push(getLatitudeForLine(i, f_sep_original));
@@ -112,10 +112,10 @@ console.log(new_attack.attack_radius)
 		console.log("Added markers to arrays")
 
 		global_html_content = global_html_content.replace("waypoints_go_here", markers.join("") + markers2.join(""));
-		
+
 		console.log("Adding objects...")
 		res.writeHead(200, {"Content-Type": "text/html"});
 
 		res.write(global_html_content);
-	});
+		res.end();
 }).listen(8070);

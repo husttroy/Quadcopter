@@ -5,7 +5,7 @@
 <head>
 	<title>plotter v1.1</title>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-	<script type="text/javascript" src="L.Map.Sync.js"></script>
+	<script type="text/javascript" src="./L.Map.Sync.js"></script>
 </head>
 
 <body>
@@ -47,9 +47,6 @@ function onMapClick(e){
 	attackCircle1 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(m1);
 
 	attackCircle2 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(m2);
-
-	attackCircle1.addTo(m1);
-	attackCircle2.addTo(m2);
 } 
 
 m1.on('click', onMapClick);
