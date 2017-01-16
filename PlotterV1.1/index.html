@@ -1,0 +1,68 @@
+</!DOCTYPE html>
+<html>
+
+
+<head>
+	<title>plotter v1.1</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+	<script type="text/javascript" src="L.Map.Sync.js"></script>
+</head>
+
+<body>
+
+
+<div id="map1" style="width: 600px; height: 400px;"></div>
+<div id="map2" style="width: 600px; height: 400px;"></div>
+
+<script>
+var m1 = L.map("map1").setView([0, 0], 13);
+var m2 = L.map("map2").setView([0, 0], 13);
+
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 25
+}).addTo(m1);
+
+// add the same OpenStreetMap tile layer to the second map
+L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 25
+}).addTo(m2);
+
+
+circle_rad_var_goes_here
+
+var attackCircle1;
+
+var attackCircle2;
+
+function onMapClick(e){
+	if(attackCircle1 != undefined){
+		m1.removeLayer(attackCircle1);
+	}
+	if(attackCircle2 != undefined){
+		m2.removeLayer(attackCircle2);
+	}
+
+	attackCircle1 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(m1);
+
+	attackCircle2 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(m2);
+
+	attackCircle1.addTo(m1);
+	attackCircle2.addTo(m2);
+} 
+
+m1.on('click', onMapClick);
+m2.on('click', onMapClick);
+
+m1.sync(m2);
+m2.sync(m1);
+
+waypoints_go_here
+
+</script>
+
+
+
+</body>
+</html>
