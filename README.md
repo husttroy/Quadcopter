@@ -20,8 +20,13 @@ to install nodejs
 
 Run plotter in the Plotter folder
 
-$ node ucla_plotter.js 8 10 
+$ node ucla_plotter.js 8 9 100 
+this would run plotter with the first flight path having 8 waypoints,
+the second flight path having 9 waypoints,
+and an attack circle radius of 100meters
 
-### node ucla_plotter.js (maximum number_of_waypoints) (attack circle radius (meters)) 
+### node ucla_plotter.js (maximum waypoints for first file) (maximum waypoints for second file)  (attack circle radius (meters)) 
+
+in the fourth and fifth lines, change ORIGINAL_FP_PATH and FIX_FP_PATH to the paths of your two files
 
 then open a browser ( Chrome, Firefox ) and type **127.0.0.1:8070** in the address bar.
