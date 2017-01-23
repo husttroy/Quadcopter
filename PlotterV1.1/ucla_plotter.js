@@ -111,23 +111,42 @@ http.createServer(function (req, res) {
 
 		for (var i = 1; i < n_waypoints_2 + 1; i+=1) {
 			if(f_sep_fix[i].split('\t')[3] == "16"){
-				markers2.push("\nvar marker2_"+i+"= L.marker(["+lat_arr2[i - 1]+","+ lon_arr2[i - 1]+"]).addTo(m2);\n"+"marker2_"+i+".bindPopup("+"\"Waypoint "+i+"\").openPopup();\n var l2"+i+"= new L.LatLng("+lat_arr2[i]+","+lon_arr2[i]+");\n var l2"+(i+1)+"= new L.LatLng("+lat_arr2[i + 1]+", "+lon_arr2[i + 1]+");\n var line_points2"+i+"=[l2"+i+", l2"+(i+1)+"]; \nvar line2_"+i+"= L.polygon(line_points2"+i+").addTo(m2);\n");
+				markers2.push(" var l2"+i+"= new L.LatLng("+lat_arr2[i]+","+lon_arr2[i]+");\n var l2"+(i+1)+"= new L.LatLng("+lat_arr2[i + 1]+", "+lon_arr2[i + 1]+");\n var line_points2"+i+"=[l2"+i+", l2"+(i+1)+"]; \nvar line2_"+i+"= L.polygon(line_points2"+i+").addTo(m2);\n");
 			}
 		}
 		*/
 		var cent_lat = save_waypoint_lat_1[0];
 		var cent_lon = save_waypoint_lon_1[0];
-		
+
 		for (var i = 0; i < n_waypoints_1; i++) {
-			var marker_tmp = "var marker" + i.toString() + " = L.marker([" + save_waypoint_lat_1[i] + ", " + save_waypoint_lon_1[i] + "]).addTo(m1);\n";
+			var marker_tmp = "var marker" + i.toString() + " = new L.marker([" + save_waypoint_lat_1[i] + ", " + save_waypoint_lon_1[i] + "]).addTo(m1);\n";
 			var bind_popup = "marker" + i.toString() + ".bindPopup(\"Waypoint " + i + "\").openPopup();\n"
-			markers.push(marker_tmp)
+			var point1 = "var point_1_" + i.toString() + " = new L.LatLng(" + save_waypoint_lat_1[i] + ", " + save_waypoint_lon_1[i] + ");\n";
+			var point2 = undefined;
+			if(i === n_waypoints_1 - 1){
+				var point2 = "var point_2_" + i.toString() + " = new L.LatLng(" + save_waypoint_lat_1[0] + ", " + save_waypoint_lon_1[0] + ");\n"; 
+			}else{
+				var point2 = "var point_2_" + i.toString() + " = new L.LatLng(" + save_waypoint_lat_1[i + 1] + ", " + save_waypoint_lon_1[i + 1] + ");\n"; 
+			}	
+
+			var line = "var line" + i + " = new L.polygon([point_1_" + i.toString() + ", point_2_" + i.toString() + "]).addTo(m1);\n"
+			markers.push(marker_tmp + bind_popup + point1 + point2 +line)
 		}
 
 		for (var i = 0; i < n_waypoints_2; i++) {
-			var marker_tmp = "var marker2_" + i.toString() + " = L.marker([" + save_waypoint_lat_2[i] + ", " + save_waypoint_lon_2[i] + "]).addTo(m2);\n";
+			var marker_tmp = "var marker2_" + i.toString() + " = new L.marker([" + save_waypoint_lat_2[i] + ", " + save_waypoint_lon_2[i] + "]).addTo(m2);\n";
 			var bind_popup = "marker2_" + i.toString() + ".bindPopup(\"Waypoint " + i + "\").openPopup();\n"
-			markers2.push(marker_tmp)
+			var point1 = "var point2_1_" + i.toString() + " = new L.LatLng(" + save_waypoint_lat_2[i] + ", " + save_waypoint_lon_2[i] + ");\n";
+			var point2 = undefined;
+			if(i === n_waypoints_1 - 1){
+				var point2 = "var point2_2_" + i.toString() + " = new L.LatLng(" + save_waypoint_lat_2[0] + ", " + save_waypoint_lon_2[0] + ");\n"; 
+			}else{
+				var point2 = "var point2_2_" + i.toString() + " = new L.LatLng(" + save_waypoint_lat_2[i + 1] + ", " + save_waypoint_lon_2[i + 1] + ");\n"; 
+			}	
+
+			var line = "var line2_" + i + " = new L.polygon([point2_1_" + i.toString() + ", point2_2_" + i.toString() + "]).addTo(m2);\n"
+
+			markers2.push(marker_tmp + bind_popup + point1 + point2 + line)
 		}
 			//add markers
 
