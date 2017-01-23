@@ -159,8 +159,8 @@ http.createServer(function (req, res) {
 		global_html_content = global_html_content.replace("CENT_LAT1", cent_lat.toString())
 		global_html_content = global_html_content.replace("CENT_LAT2", cent_lat.toString())
 
-		global_html_content = global_html_content.replace("CENT_LON1", cent_lat.toString())
-		global_html_content = global_html_content.replace("CENT_LON2", cent_lat.toString())
+		global_html_content = global_html_content.replace("CENT_LON1", cent_lon.toString())
+		global_html_content = global_html_content.replace("CENT_LON2", cent_lon.toString())
 
 		console.log("Adding objects...")
 		res.writeHead(200, {"Content-Type": "text/html"});
