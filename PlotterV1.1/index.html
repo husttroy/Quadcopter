@@ -1,11 +1,10 @@
-</!DOCTYPE html>
 <html>
 
 
 <head>
 	<title>plotter v1.1</title>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
-	<script type="text/javascript" src="./L.Map.Sync.js"></script>
+	<script src="http://thematicmapping.org/playground/leaflet/Leaflet.Sync/L.Map.Sync.js"></script>
 </head>
 
 <body>
@@ -15,8 +14,8 @@
 <div id="map2" style="width: 600px; height: 400px;"></div>
 
 <script>
-var m1 = L.map("map1").setView([0, 0], 13);
-var m2 = L.map("map2").setView([0, 0], 13);
+var m1 = L.map("map1").setView([CENT_LAT1, CENT_LON1], 13);
+var m2 = L.map("map2").setView([CENT_LAT2, CENT_LON2], 13);
 
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',

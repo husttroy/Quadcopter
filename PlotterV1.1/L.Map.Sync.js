@@ -1,3 +1,7 @@
+/*
+ * Extends L.Map to synchronize the interaction on one map to one or more other maps.
+ */
+
 (function () {
     var NO_ANIMATION = {
         animate: false,
