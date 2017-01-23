@@ -25,7 +25,7 @@ this would run plotter with the first flight path having 8 waypoints,
 the second flight path having 9 waypoints,
 and an attack circle radius of 100meters
 
-### node ucla_plotter.js (maximum waypoints for first file) (maximum waypoints for second file)  (attack circle radius (meters)) 
+### node ucla_plotter.js (attack circle radius (meters)) 
 
 in the fourth and fifth lines, change ORIGINAL_FP_PATH and FIX_FP_PATH to the paths of your two files
 
