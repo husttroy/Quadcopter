@@ -1,4 +1,4 @@
-<html>
+<!DOCTYPE html>
 
 
 <head>
@@ -7,58 +7,212 @@
 	<script src="http://thematicmapping.org/playground/leaflet/Leaflet.Sync/L.Map.Sync.js"></script>
 </head>
 
-<body>
+<body onload="page_load()">
 
+<table border="0" id="fptable">
+<tr>
+	<!--<td><div id="map1" style="width: 650px; height: 400px;"></div></td>
+	<td><div id="map2" style="width: 650px; height: 400px;"></div></td>-->
+</tr>
+</table>
 
-<div id="map1" style="width: 600px; height: 400px;"></div>
-<div id="map2" style="width: 600px; height: 400px;"></div>
+<input type='file' accept='text/plain' onchange='openFile(event)' style="float: right">
+
+<!--<button onclick="new_row()" style="float: right">Add Flight Plan</button>-->
 
 <script>
-var m1 = L.map("map1").setView([CENT_LAT1, CENT_LON1], 18);
-var m2 = L.map("map2").setView([CENT_LAT2, CENT_LON2], 18);
 
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 25
-}).addTo(m1);
+var flight_plan_table = document.getElementById("fptable");
 
-// add the same OpenStreetMap tile layer to the second map
-L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 25
-}).addTo(m2);
+var hasProvidedFix = 0;
 
+var number_of_maps = 0;
+
+var currentRow = -1;
+var rowArray = [];
+var cellArray = [];
+
+const LEFT_CELL = 1;
+const RIGHT_CELL = 2;
 
 circle_rad_var_goes_here
+
+var center_latitude1 = 0;
+var center_longtitude1 = 0;
+var center_latitude2 = 0;
+var center_longtitude2 = 0;
+
+var waypoints_coords = [];
+var markers = [];
+var lines = [];
+//var lines = [0, 0];
+
+//var maps = [L.map("map1").setView([center_latitude1, center_longtitude1], 18), L.map("map2").setView([center_latitude2, center_longtitude2], 18)];
+var maps = [];
 
 var attackCircle1;
 
 var attackCircle2;
 
-waypoints_go_here
+//waypoints_go_here
+
+function page_load(){
+	//rowArray.push([-1, -1, -1]);
+	//rowArray.push([-1, -1, -1]);
+}
+
+function lineHasWaypoint(ln){
+	if(ln.split("\t")[3] != undefined){
+		if(ln.split("\t")[3] === "16"){
+			return true;
+		}
+		return false;
+	}else{
+		return false;
+	}
+}
+
+function getLat(ln){
+	if(lineHasWaypoint(ln)){
+		return ln.split("\t")[8];
+	}else{
+		return "err";
+	}
+}
+
+function getLon(ln){
+	if(lineHasWaypoint(ln)){
+		return ln.split("\t")[9];
+	}else{
+		return "err";
+	}
+}
+
+function new_row(){
+	console.log(flight_plan_table);
+
+	var row = window.flight_plan_table.insertRow(window.currentRow);
+	window.currentRow += 1;
+	window.rowArray.push([row, row.insertCell(0), row.insertCell(1)]);
+
+	//add first map
+
+	window.rowArray[currentRow][LEFT_CELL].innerHTML = "<div id=\"map" + number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
+
+	window.maps.push(L.map("map" + number_of_maps.toString()).setView([center_latitude1, center_longtitude1], 18));
+
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    	maxZoom: 25
+	}).addTo(maps[window.maps.length - 1]);
+
+	for (var i = window.markers[window.maps.length - 1].length - 1; i >= 0; i--) {
+		window.markers[window.maps.length - 1][i].addTo(maps[window.maps.length - 1]);
+	};
+
+	//add second map
+		if(hasProvidedFix == 1 || number_of_maps == 2){
+
+		}else{
+			window.number_of_maps += 1;
+		}
+		window.rowArray[currentRow][RIGHT_CELL].innerHTML = "<div id=\"map" + number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
+
+		window.maps.push(L.map("map" + number_of_maps.toString()).setView([center_latitude2, center_longtitude2], 18));
+
+		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	    	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+	    	maxZoom: 25
+		}).addTo(maps[window.maps.length - 1]);
+		if(hasProvidedFix == 0){
+			for (var j = window.markers[1].length - 1; j >= 0; j--) {
+				window.markers[1][j].addTo(maps[1]);
+			}
+			window.hasProvidedFix = 1;
+
+		}else{
+			for (var j = window.markers[window.maps.length - 1].length - 1; j >= 0; j--) {
+				window.markers[window.maps.length - 1][j].addTo(maps[window.maps.length - 1]);
+			}
+	}
+}
+
+function openFile(event){
+	var input = event.target;
+	var reader = new FileReader();
+    reader.onload = function(){
+    	var text = reader.result;
+     	//text stored as "text"
+     	var split_by_line = text.split("\n");
+     	console.log(split_by_line);
+     	if(number_of_maps == 1 || number_of_maps == 2){
+
+     	}else{
+     		window.number_of_maps += 1;
+     	}
+     	window.waypoints_coords.push([]);
+     	if(hasProvidedFix == 1){
+			for(var i = split_by_line.length - 1; i >= 0; i--) {
+     			if(lineHasWaypoint(split_by_line[i])){
+     				window.waypoints_coords[1].push([getLat(split_by_line[i]), getLon(split_by_line[i])]);
+     			}
+     			
+     		}
+     		window.hasProvidedFix = 2;
+     	}else{
+     		for(var i = split_by_line.length - 1; i >= 0; i--) {
+     			if(lineHasWaypoint(split_by_line[i])){
+     				window.waypoints_coords[number_of_maps - 1].push([getLat(split_by_line[i]), getLon(split_by_line[i])]);
+     			}
+     		
+     		}
+     }
+     	window.markers.push([]);
+     	window.markers.push([]);
+
+     	console.log(window.markers);
+
+     	for(var i = waypoints_coords[window.number_of_maps - 1].length - 1; i >= 0; i--){
+     		window.markers[window.markers.length - 2].push(new L.marker([waypoints_coords[window.number_of_maps - 1][i][0], waypoints_coords[window.number_of_maps - 1][i][1]]));
+     	}
+     	if(hasProvidedFix == 0){
+     		alert("Now click \"Add File\" again to add the fixed flight plan.");
+     	}else{
+	     	for(var i = waypoints_coords[window.number_of_maps - 1].length - 1; i >= 0; i--){
+	     		window.markers[window.markers.length - 1].push(new L.marker([waypoints_coords[window.number_of_maps - 1][i][0], waypoints_coords[window.number_of_maps - 1][i][1]]));
+	     	}
+	     	window.center_latitude1 = window.markers[window.markers.length - 2][0]._latlng.lat;
+	     	window.center_longtitude1 = window.markers[window.markers.length - 2][0]._latlng.lng;
+		}
+     	new_row();
+
+    };
+    reader.readAsText(input.files[0]);
+}
 
 function onMapClick(e){
 	if(attackCircle1 != undefined){
-		m1.removeLayer(attackCircle1);
+		maps[0].removeLayer(attackCircle1);
 	}
 	if(attackCircle2 != undefined){
-		m2.removeLayer(attackCircle2);
+		maps[1].removeLayer(attackCircle2);
 	}
 
-	attackCircle1 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(m1);
+	attackCircle1 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(maps[0]);
 
-	attackCircle2 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(m2);
+	attackCircle2 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(maps[1]);
 } 
+/*
+maps[0].on('click', onMapClick);
+maps[1].on('click', onMapClick);
 
-m1.on('click', onMapClick);
-m2.on('click', onMapClick);
-
-m1.sync(m2);
-m2.sync(m1);
-
+maps[0].sync(maps[1]);
+maps[1].sync(maps[0]);
+*/
 </script>
 
 
 
 </body>
+
 </html>
