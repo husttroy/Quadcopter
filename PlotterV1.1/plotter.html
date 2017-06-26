@@ -3,13 +3,28 @@
 	<title>plotter v1.1</title>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 	<script src="http://thematicmapping.org/playground/leaflet/Leaflet.Sync/L.Map.Sync.js"></script>
-	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <table border="0" id="mapTable"></table>
 <input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="float: right"></input>
 <button onclick="fixBrokenFlightPlan()" style="float: right">Fix</button>
+<div id="slider" style="width: 200px; height: 30px;">
+  <div id="custom-handle" class="ui-slider-handle" style="float: left"></div>
+</div>
 
+<style>
+#custom-handle {
+    width: 3em;
+    height: 1.3em;
+    top: 40%;
+    margin-top: -0.8em;
+    text-align: center;
+    line-height: 1.6em;
+  }
+</style>
 <script type="text/javascript">
 /*
  * When the map count is one, we have to add another map (singular) to add the fix.
@@ -197,6 +212,19 @@ function onMapClick(e) {
 		window.attackCircles[i] = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.3, radius: window.circleRadius}).addTo(window.maps[i]);
 	};
 } 
+
+$( function() {
+    var handle = $("#custom-handle");
+    $("#slider").slider({
+      create: function() {
+        handle.text($(this).slider("value"));
+      },
+      slide: function(event, ui) {
+        handle.text(ui.value);
+        window.circleRadius = ui.value;
+      }
+    });
+  });
 
 </script>
 
