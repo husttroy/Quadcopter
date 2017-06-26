@@ -10,7 +10,9 @@
 <table border="0" id="fptable">
 </table>
 
-<input type='file' accept='text/plain' onchange='openFile(event)' style="float: right">
+<input type='file' accept='text/plain' onchange='openFile' id='fileChooser' style='float: right'></input>
+
+<button onclick="fix()" style="float: right">Fix</button>
 
 <script>
 
@@ -38,6 +40,8 @@ var lines = [];
 var maps = [];
 
 var attackCircles = [];
+
+var fixDict = {};
 
 function lineHasWaypoint(ln){
 	if(ln.split("\t")[3] != undefined){
@@ -75,7 +79,7 @@ function new_row(){
 		window.rowArray[currentRow][LEFT_CELL].innerHTML = "<div id=\"map" + window.number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
 
 		window.maps.push(L.map("map" + window.number_of_maps.toString()).setView([center_latitude, center_longtitude], 18));
-
+		window.maps[window.maps.length - 1].on('click', onMapClick);
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     		maxZoom: 25
@@ -89,6 +93,7 @@ function new_row(){
 		for(var j = 0; j < markers[window.number_of_maps].length; j++){
 			new_line.push(markers[window.maps.length - 1][j].getLatLng());
 		};
+		new_line.push(markers[window.maps.length - 1][0].getLatLng());
 
 		var pLine = L.polyline(new_line, {color: 'blue'}).addTo(maps[window.maps.length - 1]);
 
@@ -96,6 +101,7 @@ function new_row(){
 	}else if(window.number_of_maps == 1){
 		window.rowArray[currentRow][RIGHT_CELL].innerHTML = "<div id=\"map" + window.number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
 		window.maps.push(L.map("map" + window.number_of_maps.toString()).setView([center_latitude, center_longtitude], 18));
+		window.maps[window.maps.length - 1].on('click', onMapClick);
 
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -109,6 +115,8 @@ function new_row(){
 		for(var j = 0; j < markers[window.number_of_maps].length; j++){
 			new_line.push(markers[window.maps.length - 1][j].getLatLng());
 		};
+
+		new_line.push(markers[window.maps.length - 1][0].getLatLng());
 
 		var pLine = L.polyline(new_line, {color: 'blue'}).addTo(maps[window.maps.length - 1]);
 		window.number_of_maps += 1;
@@ -125,6 +133,7 @@ function new_row(){
 		window.rowArray[currentRow][LEFT_CELL].innerHTML = "<div id=\"map" + window.number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
 
 		window.maps.push(L.map("map" + window.number_of_maps.toString()).setView([center_latitude, center_longtitude], 18));
+		window.maps[window.maps.length - 1].on('click', onMapClick);
 
 		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -141,30 +150,9 @@ function new_row(){
 			new_line1.push(markers[window.maps.length - 1][j].getLatLng());
 		};
 
+
+		new_line1.push(markers[window.maps.length - 1][0].getLatLng());
 		var pLine1 = L.polyline(new_line1, {color: 'blue'}).addTo(maps[window.maps.length - 1]);
-
-		window.number_of_maps += 1;
-
-		window.rowArray[currentRow][RIGHT_CELL].innerHTML = "<div id=\"map" + window.number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
-
-		window.maps.push(L.map("map" + window.number_of_maps.toString()).setView([center_latitude, center_longtitude], 18));
-
-		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    		maxZoom: 25
-		}).addTo(maps[window.maps.length - 1]);
-
-		for (var i = 0; i < markers[window.number_of_maps - 1].length; i++) {
-			markers[window.number_of_maps - 1][i].addTo(maps[window.maps.length - 1]);
-		};
-
-		var new_line2 = Array();
-
-		for(var j = 0; j < markers[window.maps.length - 1].length; j++){
-			new_line2.push(markers[window.maps.length - 1][j].getLatLng());
-		};
-
-		var pLine2 = L.polyline(new_line2, {color: 'blue'}).addTo(maps[window.maps.length - 1]);
 	}
 }
 
@@ -172,63 +160,106 @@ function openFile(event){
 	var input = event.target;
 	var reader = new FileReader();
     reader.onload = function(){
-    text = reader.result;
-    //text stored as "text"
-   	
-    var split_by_line = text.split("\n");
-   	if(window.number_of_maps == 0 || window.number_of_maps == 1){
-   		markers.push([]);
-    	for(var i = 0; i < split_by_line.length; i++){
-    		if(lineHasWaypoint(split_by_line[i])){
-    			markers[window.number_of_maps].push(new L.marker([getLat(split_by_line[i]), getLon(split_by_line[i])]));
-    			window.center_latitude = getLat(split_by_line[i]);
-    			window.center_longtitude = getLon(split_by_line[i]);
-    		}
-   		}
-	}else{
-		markers.push([]);
-		for(var i = 0; i < split_by_line.length; i++){
-    		if(lineHasWaypoint(split_by_line[i])){
-    			markers[window.number_of_maps].push(new L.marker([getLat(split_by_line[i]), getLon(split_by_line[i])]));
-    			window.center_latitude = getLat(split_by_line[i]);
-    			window.center_longtitude = getLon(split_by_line[i]);
-    		}
-   		}
-   		markers.push([]);
-   		for(var i = 0; i < split_by_line.length; i++){
-    		if(lineHasWaypoint(split_by_line[i])){
-    			markers[window.number_of_maps + 1].push(new L.marker([getLat(split_by_line[i]), getLon(split_by_line[i])]));
-    			window.center_latitude = getLat(split_by_line[i]);
-    			window.center_longtitude = getLon(split_by_line[i]);
-    		}
-   		}
+	    text = reader.result;
+	    //text stored as "text"
+	    var split_by_line = text.split("\n");
+	   	if(window.number_of_maps == 0 || window.number_of_maps == 1){
+	   		markers.push([]);
+	    	for(var i = 0; i < split_by_line.length; i++){
+	    		if(lineHasWaypoint(split_by_line[i])){
+	    			markers[window.number_of_maps].push(new L.marker([getLat(split_by_line[i]), getLon(split_by_line[i])]));
+	    			window.center_latitude = getLat(split_by_line[i]);
+	    			window.center_longtitude = getLon(split_by_line[i]);
+	    		}
+	   		}
+		}else{
+			markers.push([]);
+			for(var i = 0; i < split_by_line.length; i++){
+	    		if(lineHasWaypoint(split_by_line[i])){
+	    			markers[window.number_of_maps].push(new L.marker([getLat(split_by_line[i]), getLon(split_by_line[i])]));
+	    			window.center_latitude = getLat(split_by_line[i]);
+	    			window.center_longtitude = getLon(split_by_line[i]);
+	    		}
+	   		}
+	   		markers.push([]);
+	   		for(var i = 0; i < split_by_line.length; i++){
+	    		if(lineHasWaypoint(split_by_line[i])){
+	    			markers[window.number_of_maps + 1].push(new L.marker([getLat(split_by_line[i]), getLon(split_by_line[i])]));
+	    			window.center_latitude = getLat(split_by_line[i]);
+	    			window.center_longtitude = getLon(split_by_line[i]);
+	    		}
+	   		}
+		}
+	    new_row();
 	}
-    new_row();
-
-}
     reader.readAsText(input.files[0]);
-
 }
+
+/*
+document.getElementById("fileChooser").onclick = function(){
+	this.value = null;
+}
+*/
 
 function onMapClick(e){
-	if(attackCircle1 != undefined){
-		maps[0].removeLayer(attackCircle1);
-	}
-	if(attackCircle2 != undefined){
-		maps[1].removeLayer(attackCircle2);
-	}
+	for (var i = attackCircles.length - 1; i >= 0; i--) {
+		if(attackCircles[i] != undefined){
+			maps[i].removeLayer(attackCircles[i]);
+		}
+	};
 
-	attackCircle1 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(maps[0]);
-
-	attackCircle2 = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(maps[1]);
+	for (var i = maps.length - 1; i >= 0; i--) {
+		attackCircles[i] = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.5, radius: circle_rad}).addTo(maps[i]);
+	};
 } 
-/*
-maps[0].on('click', onMapClick);
-maps[1].on('click', onMapClick);
 
-maps[0].sync(maps[1]);
-maps[1].sync(maps[0]);
-*/
+function analyzeFix(){
+	for (var i = window.markers[window.number_of_maps - 2].length - 1; i >= 0; i--) {
+		if(window.markers[window.number_of_maps - 2][i].getLatLng().lat == window.markers[window.number_of_maps - 1][i].getLatLng().lat && window.markers[window.number_of_maps - 2][i].getLatLng().lng == window.markers[window.number_of_maps - 1][i].getLatLng().lng){
+		}else{
+			window.fixDict[i] = window.markers[window.number_of_maps - 1][i]; // save fixed point and fixed point index so we can replace later buggy maps' same index with fixed point
+		}
+	};
+}
+function fix(){
+	if(window.number_of_maps == 1){
+		//make second map
+		//add waypoints to [markers] etc.
+		new_row(); 
+	}if(window.number_of_maps >= 3){
+		window.number_of_maps += 1;
+		var previousMap = window.number_of_maps - 2;
+		var currentMap = window.number_of_maps - 1;
+
+		window.rowArray[currentRow][RIGHT_CELL].innerHTML = "<div id=\"map" + window.number_of_maps + "\" style=\"width: 650px; height: 400px;\"></div>";
+
+		window.maps.push(L.map("map" + window.number_of_maps.toString()).setView([center_latitude, center_longtitude], 18));
+		window.maps[window.maps.length - 1].on('click', onMapClick);
+
+		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    		maxZoom: 25
+		}).addTo(maps[window.maps.length - 1]);
+
+		var previousMapPoints = window.markers[previousMap];
+		console.log(previousMapPoints);
+
+		for (var i = 0; i < markers[window.number_of_maps - 2].length; i++) {
+			markers[window.number_of_maps - 2][i].addTo(maps[window.maps.length - 1]);
+		};
+
+		var new_line2 = Array();
+
+		for(var j = 0; j < markers[window.number_of_maps - 2].length; j++){
+			new_line2.push(markers[window.maps.length - 2][j].getLatLng());
+		};
+
+		new_line2.push(markers[window.maps.length - 2][0].getLatLng());
+		
+		var pLine2 = L.polyline(new_line2, {color: 'blue'}).addTo(maps[currentMap]);
+	}
+}
+
 </script>
 
 

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<head>
+	<title>plotter v1.1</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
+	<script src="http://thematicmapping.org/playground/leaflet/Leaflet.Sync/L.Map.Sync.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+</head>
+
+<table border="0" id="mapTable"></table>
+<input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="float: right"></input>
+<button onclick="fixBrokenFlightPlan()" style="float: right">Fix</button>
+
+<script type="text/javascript">
+/*
+ * When the map count is one, we have to add another map (singular) to add the fix.
+ * When the map count is two, we can add two maps at a time: one map that the user uploads, and one map that GenProg (or for now point plugging) fixes.
+ * So: Broken map index is mapRepresentations[0] and map fix is mapRepresentations[1]
+ */
+var mapRepresentations = [];
+var maps = [];
+
+var table = document.getElementById("mapTable");
+
+var attackCircles = [];
+var circleRadius = 10;
+
+const LEFT_CELL = 0;
+const RIGHT_CELL = 1;
+
+var flightPlanFix = new Object();
+
+function lineHasWaypoint(line) {
+	if(line.split("\t")[3] != undefined) {
+		if(line.split("\t")[3] === "16") {
+			return true;
+		}
+	}
+	return false;
+}
+
+function getLat(line) {
+	if(lineHasWaypoint(line)) {
+		return line.split("\t")[8];
+	}
+	return "";
+}
+
+function getLon(line) {
+	if(lineHasWaypoint(line)) {
+		return line.split("\t")[9];
+	}
+	return "";
+}
+
+function getMapCount() {
+	return window.mapRepresentations.length;
+}
+
+function coordsAreEqual(a, b) {
+	if(a[0] == b[0] && a[1] == b[1]) {
+		return true;
+	}
+	return false;
+}
+
+function openFile(event) {
+	var input = event.target;
+	var reader = new FileReader();
+    reader.onload = function(){
+	    var data = reader.result;
+	    data = data.split("\n");
+	    var mapRepresentation = new Object();
+	    mapRepresentation["waypoints"] = [];
+	    for (var i = data.length - 1; i >= 0; i--) {
+	    	if(lineHasWaypoint(data[i])) {
+	    		mapRepresentation["waypoints"].push([getLat(data[i]), getLon(data[i])]); //push waypoint to maps representation waypoints
+	    	}
+	    };
+	    mapRepresentation["center"] = mapRepresentation["waypoints"][0]; //set center of map as lat/lon of first waypoint
+	    window.mapRepresentations.push(mapRepresentation); //add map representation to global array of map representations
+	    if(getMapCount() == 1) {
+	    	addBrokenFlightPlan();
+	    } else if(getMapCount() == 2) {
+	    	addFixedFlightPlan();
+	    } else {
+	    	addFlightPlan();
+	    }
+	}
+    reader.readAsText(input.files[0]);
+}
+
+//used to add the very first map
+function addBrokenFlightPlan() {
+	var newRow = window.table.insertRow(0);
+	var leftCell = newRow.insertCell(0);
+	leftCell.innerHTML = "<div id=\"brokenFlightPlan\" style=\"width: 650px; height: 400px;\"></div>"; //make a cell for the map
+	window.maps.push(new L.map("brokenFlightPlan").setView(window.mapRepresentations[0]["center"], 18));
+	window.maps[0].on('click', onMapClick);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    	maxZoom: 25
+	}).addTo(window.maps[0]);
+	for (var i = window.mapRepresentations[0]["waypoints"].length - 1; i >= 0; i--) {
+		var coordinates = window.mapRepresentations[0]["waypoints"][i]; //["34.1, 99.111"]
+		var tmpMarker = new L.marker(coordinates);
+		tmpMarker.addTo(window.maps[0]); //add marker to broken flight plan
+	};
+}
+
+//used to add the second map
+function addFixedFlightPlan() {
+	var fixCoordinates = [];
+	var insertIdxs = [];
+
+	var rightCell = window.table.rows[0].insertCell(1);
+	rightCell.innerHTML = "<div id=\"fixedFlightPlan\" style=\"width: 650px; height: 400px;\"></div>"; //make another cell for the fixed map
+	window.maps.push(new L.map("fixedFlightPlan").setView(window.mapRepresentations[0]["center"], 18));
+	window.maps[1].on('click', onMapClick);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    	maxZoom: 25
+	}).addTo(window.maps[1]);
+	for (var i = window.mapRepresentations[1]["waypoints"].length - 1; i >= 0; i--) {
+		var coordinates = window.mapRepresentations[1]["waypoints"][i]; //["34.1, 99.111"]
+		var tmpMarker = new L.marker(coordinates);
+		tmpMarker.addTo(window.maps[1]); //add marker to fixed flight plan
+	};
+
+	fixCoordinates = $(window.mapRepresentations[1]["waypoints"]).not(window.mapRepresentations[0]["waypoints"]).get();
+
+	for (var i = fixCoordinates.length - 1; i >= 0; i--) {
+		for (var j = window.mapRepresentations[1]["waypoints"].length - 1; j >= 0; j--) {
+			if(coordsAreEqual(fixCoordinates[i], window.mapRepresentations[1]["waypoints"][j])) {
+				insertIdxs.push(j);
+			}
+		};
+	};
+	// after comparing broken coords and fix coords we find the odd coordinate out and declare that as the fix
+	flightPlanFix["coordinates"] = fixCoordinates; //save coordinates for fixing
+	flightPlanFix["insertIdxs"] = insertIdxs; //save the index in which fix was inserted
+	console.log(flightPlanFix);
+}
+
+//used to add all other maps
+function addFlightPlan() {
+	console.log(getMapCount());
+	var newRow = window.table.insertRow(getMapCount() - 2);
+	var leftCell = newRow.insertCell(0);
+	leftCell.innerHTML = "<div id=\"map" + getMapCount().toString() + "\" style=\"width: 650px; height: 400px;\"></div>"; //make a cell for the map
+	window.maps.push(new L.map("map" + getMapCount().toString()).setView(window.mapRepresentations[getMapCount() - 1]["center"], 18));
+	window.maps[getMapCount() - 1].on('click', onMapClick);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    	maxZoom: 25
+	}).addTo(window.maps[getMapCount() - 1]);
+	for (var i = window.mapRepresentations[getMapCount() - 1]["waypoints"].length - 1; i >= 0; i--) {
+		var coordinates = window.mapRepresentations[getMapCount() - 1]["waypoints"][i]; //["34.1, 99.111"]
+		var tmpMarker = new L.marker(coordinates);
+		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
+	};
+}
+
+function fixBrokenFlightPlan() {
+	//broken flight plan is added, now we can apply the fix
+	var rightCell = window.table.rows[getMapCount() - 2].insertCell(1);
+	window.mapRepresentations.push(new Object()); //add representation of fixed plan
+	rightCell.innerHTML = "<div id=\"map" + getMapCount().toString() + "\" style=\"width: 650px; height: 400px;\"></div>"; //make a cell for the map
+	window.maps.push(new L.map("map" + getMapCount().toString()).setView(window.mapRepresentations[getMapCount() - 2]["center"], 18));
+	window.maps[getMapCount() - 1].on('click', onMapClick);
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+    	maxZoom: 25
+	}).addTo(window.maps[getMapCount() - 1]);
+
+	window.mapRepresentations[getMapCount() - 1]["waypoints"] = window.mapRepresentations[getMapCount() - 2]["waypoints"];
+
+	for (var i = window.flightPlanFix["coordinates"].length - 1; i >= 0; i--) {
+		window.mapRepresentations[getMapCount() - 1]["waypoints"].splice(window.flightPlanFix["insertIdxs"][i], 0, window.flightPlanFix["coordinates"][i]);
+	};
+	//now that the fixed coordinates are added to the broken flight plan into the right places, we can now build and display the map
+	
+	for (var i = window.mapRepresentations[getMapCount() - 1]["waypoints"].length - 1; i >= 0; i--) {
+		var coordinates = window.mapRepresentations[getMapCount() - 1]["waypoints"][i]; //["34.1, 99.111"]
+		var tmpMarker = new L.marker(coordinates);
+		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
+	};
+}
+
+function onMapClick(e) {
+	for (var i = window.attackCircles.length - 1; i >= 0; i--) {
+		if(window.attackCircles[i] != undefined) {
+			window.maps[i].removeLayer(window.attackCircles[i]);
+		}
+	};
+
+	for (var i = getMapCount() - 1; i >= 0; i--) {
+		window.attackCircles[i] = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.3, radius: window.circleRadius}).addTo(window.maps[i]);
+	};
+} 
+
+</script>
+
+</body>
+</html>
