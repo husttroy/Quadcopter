@@ -10,9 +10,9 @@
 
 <table border="0" id="mapTable"></table>
 <input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="float: right"></input>
-<button onclick="fixBrokenFlightPlan()" style="float: right">Fix</button>
-<div id="slider" style="width: 200px; height: 30px;">
-  <div id="custom-handle" class="ui-slider-handle" style="float: left"></div>
+<button onclick="fixBrokenFlightPlan()" style="float: right; color: red">Fix</button>
+<div id="slider" style="width: 300px; height: 30px; color: blue">
+  <div id="custom-handle" class="ui-slider-handle" style=""></div>
 </div>
 
 <style>
@@ -220,8 +220,8 @@ $( function() {
         handle.text($(this).slider("value"));
       },
       slide: function(event, ui) {
-        handle.text(ui.value);
-        window.circleRadius = ui.value;
+        handle.text(ui.value * 10);
+        window.circleRadius = ui.value * 10;
       }
     });
   });
