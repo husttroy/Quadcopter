@@ -3,14 +3,15 @@
 	<title>plotter v1.1</title>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
 	<script src="http://thematicmapping.org/playground/leaflet/Leaflet.Sync/L.Map.Sync.js"></script>
-	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
   	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 
 <table border="0" id="mapTable"></table>
 Radius (meters): <input type="text" id="radiusField" value="100">
-<button onclick="updateRadius()">Update</button>
+Latitude: <input type="text" id="latField" value="">
+Longtitude: <input type="text" id="lonField" value="">
+<button onclick="updateCircle()">Update</button>
 <input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="float: right"></input>
 <button onclick="fixBrokenFlightPlan()" style="float: right; color: red">Fix</button>
 
@@ -25,6 +26,8 @@ var maps = [];
 
 var table = document.getElementById("mapTable");
 var radiusField = document.getElementById("radiusField");
+var latField = document.getElementById("latField");
+var lonField = document.getElementById("lonField");
 
 var attackCircles = [];
 var circleRadius = 10;
@@ -107,7 +110,7 @@ function addBrokenFlightPlan() {
 		var tmpMarker = new L.marker(coordinates);
 		tmpMarker.addTo(window.maps[0]); //add marker to broken flight plan
 	};
-	document.alert("To adjust the attack circle radius, click the number and use the left and right arrow keys to increase or decrease the radius (in meters)")
+	alert("To adjust the attack circle, use the text fields and click 'Update'.")
 }
 
 //used to add the second map
@@ -189,21 +192,37 @@ function fixBrokenFlightPlan() {
 	};
 }
 
-function onMapClick(e) {
-	for (var i = window.attackCircles.length - 1; i >= 0; i--) {
-		if(window.attackCircles[i] != undefined) {
-			window.maps[i].removeLayer(window.attackCircles[i]);
-		}
-	};
+function onMapClick(e, lat, lon) {
+	if(e != undefined){
+		for (var i = window.attackCircles.length - 1; i >= 0; i--) {
+			if(window.attackCircles[i] != undefined) {
+				window.maps[i].removeLayer(window.attackCircles[i]);
+			}
+		};
 
-	for (var i = getMapCount() - 1; i >= 0; i--) {
-		window.attackCircles[i] = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.3, radius: window.circleRadius}).addTo(window.maps[i]);
-	};
+		for (var i = getMapCount() - 1; i >= 0; i--) {
+			window.attackCircles[i] = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.3, radius: window.circleRadius}).addTo(window.maps[i]);
+		};
+		window.latField.value = e.latlng.lat;
+		window.lonField.value = e.latlng.lng;
+	}else{
+		for (var i = window.attackCircles.length - 1; i >= 0; i--) {
+			if(window.attackCircles[i] != undefined) {
+				window.maps[i].removeLayer(window.attackCircles[i]);
+			}
+		};
+
+		for (var i = getMapCount() - 1; i >= 0; i--) {
+			window.attackCircles[i] = L.circle([lat, lon], {color: 'red', fillColor: '#f03', fillOpacity: 0.3, radius: window.circleRadius}).addTo(window.maps[i]);
+		};
+	}
 }
 
-function updateRadius() {
-	window.circleRadius = window.radiusField.value.parseInt();
+function updateCircle() {
+	window.circleRadius = window.radiusField.value;
+	onMapClick(undefined, window.latField.value, window.lonField.value);
 }
+
 </script>
 
 </body>
