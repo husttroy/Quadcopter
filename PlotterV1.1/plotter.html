@@ -9,22 +9,11 @@
 </head>
 
 <table border="0" id="mapTable"></table>
+Radius (meters): <input type="text" id="radiusField" value="100">
+<button onclick="updateRadius()">Update</button>
 <input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="float: right"></input>
 <button onclick="fixBrokenFlightPlan()" style="float: right; color: red">Fix</button>
-<div id="slider" style="width: 300px; height: 30px; color: blue">
-  <div id="custom-handle" class="ui-slider-handle" style=""></div>
-</div>
 
-<style>
-#custom-handle {
-    width: 3em;
-    height: 1.3em;
-    top: 40%;
-    margin-top: -0.8em;
-    text-align: center;
-    line-height: 1.6em;
-  }
-</style>
 <script type="text/javascript">
 /*
  * When the map count is one, we have to add another map (singular) to add the fix.
@@ -35,12 +24,10 @@ var mapRepresentations = [];
 var maps = [];
 
 var table = document.getElementById("mapTable");
+var radiusField = document.getElementById("radiusField");
 
 var attackCircles = [];
 var circleRadius = 10;
-
-const LEFT_CELL = 0;
-const RIGHT_CELL = 1;
 
 var flightPlanFix = new Object();
 
@@ -120,6 +107,7 @@ function addBrokenFlightPlan() {
 		var tmpMarker = new L.marker(coordinates);
 		tmpMarker.addTo(window.maps[0]); //add marker to broken flight plan
 	};
+	document.alert("To adjust the attack circle radius, click the number and use the left and right arrow keys to increase or decrease the radius (in meters)")
 }
 
 //used to add the second map
@@ -211,21 +199,11 @@ function onMapClick(e) {
 	for (var i = getMapCount() - 1; i >= 0; i--) {
 		window.attackCircles[i] = L.circle([e.latlng.lat, e.latlng.lng], {color: 'red', fillColor: '#f03', fillOpacity: 0.3, radius: window.circleRadius}).addTo(window.maps[i]);
 	};
-} 
+}
 
-$( function() {
-    var handle = $("#custom-handle");
-    $("#slider").slider({
-      create: function() {
-        handle.text($(this).slider("value"));
-      },
-      slide: function(event, ui) {
-        handle.text(ui.value * 10);
-        window.circleRadius = ui.value * 10;
-      }
-    });
-  });
-
+function updateRadius() {
+	window.circleRadius = window.radiusField.value.parseInt();
+}
 </script>
 
 </body>
