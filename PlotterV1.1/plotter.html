@@ -8,12 +8,13 @@
 </head>
 
 <table border="0" id="mapTable"></table>
-Radius (meters): <input type="text" id="radiusField" value="100">
+Radius (meters): <input type="text" id="radiusField" value="10">
 Latitude: <input type="text" id="latField" value="">
 Longtitude: <input type="text" id="lonField" value="">
 <button onclick="updateCircle()">Update</button>
-<input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="float: right"></input>
-<button onclick="fixBrokenFlightPlan()" style="float: right; color: red">Fix</button>
+<input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="display: none"></input>
+<button onclick="document.getElementById('fileChooser').click();" style="float: right" id="chooseFlightPlanBtn">Choose Faulty Plan</button>
+<button onclick="fixBrokenFlightPlan()" style="float: right; color: red" id="fixBtn">Fix</button>
 
 <script type="text/javascript">
 /*
@@ -112,6 +113,7 @@ function addBrokenFlightPlan() {
 	};
 	alert("To adjust the attack circle, use the text fields and click 'Update'.");
 	onMapClick(undefined, window.latField.value, window.lonField.value);
+	document.getElementById("chooseFlightPlanBtn").firstChild.data = "Choose Fixed Plan";
 }
 
 //used to add the second map
@@ -133,6 +135,12 @@ function addFixedFlightPlan() {
 		tmpMarker.addTo(window.maps[1]); //add marker to fixed flight plan
 	};
 
+	for (var i = window.mapRepresentations[1]["waypoints"].length - 1; i >= 0; i--) {
+		for (var j = window.mapRepresentations[0]["waypoints"].length - 1; j >= 0; j--) {
+			console.log(window.mapRepresentations[0]["waypoints"][j] + "   " + window.mapRepresentations[1]["waypoints"][i]);
+		}
+	}
+
 	fixCoordinates = $(window.mapRepresentations[1]["waypoints"]).not(window.mapRepresentations[0]["waypoints"]).get();
 
 	for (var i = fixCoordinates.length - 1; i >= 0; i--) {
@@ -148,6 +156,7 @@ function addFixedFlightPlan() {
 	console.log(flightPlanFix);
 	onMapClick(undefined, window.latField.value, window.lonField.value);
 
+	document.getElementById("chooseFlightPlanBtn").firstChild.data = "Choose Plan";
 }
 
 //used to add all other maps
@@ -168,6 +177,7 @@ function addFlightPlan() {
 		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
 	};
 	onMapClick(undefined, window.latField.value, window.lonField.value);
+	document.getElementById("fixBtn").style.color = "green";
 }
 
 function fixBrokenFlightPlan() {
@@ -196,6 +206,7 @@ function fixBrokenFlightPlan() {
 	};
 
 	onMapClick(undefined, window.latField.value, window.lonField.value);
+	document.getElementById("fixBtn").style.color = "red";
 
 }
 
