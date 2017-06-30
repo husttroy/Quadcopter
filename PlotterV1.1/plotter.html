@@ -110,7 +110,8 @@ function addBrokenFlightPlan() {
 		var tmpMarker = new L.marker(coordinates);
 		tmpMarker.addTo(window.maps[0]); //add marker to broken flight plan
 	};
-	alert("To adjust the attack circle, use the text fields and click 'Update'.")
+	alert("To adjust the attack circle, use the text fields and click 'Update'.");
+	onMapClick(undefined, window.latField.value, window.lonField.value);
 }
 
 //used to add the second map
@@ -145,6 +146,8 @@ function addFixedFlightPlan() {
 	flightPlanFix["coordinates"] = fixCoordinates; //save coordinates for fixing
 	flightPlanFix["insertIdxs"] = insertIdxs; //save the index in which fix was inserted
 	console.log(flightPlanFix);
+	onMapClick(undefined, window.latField.value, window.lonField.value);
+
 }
 
 //used to add all other maps
@@ -164,6 +167,7 @@ function addFlightPlan() {
 		var tmpMarker = new L.marker(coordinates);
 		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
 	};
+	onMapClick(undefined, window.latField.value, window.lonField.value);
 }
 
 function fixBrokenFlightPlan() {
@@ -190,6 +194,9 @@ function fixBrokenFlightPlan() {
 		var tmpMarker = new L.marker(coordinates);
 		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
 	};
+
+	onMapClick(undefined, window.latField.value, window.lonField.value);
+
 }
 
 function onMapClick(e, lat, lon) {
