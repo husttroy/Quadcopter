@@ -14,7 +14,7 @@ Longtitude: <input type="text" id="lonField" value="">
 <button onclick="updateCircle()">Update</button>
 <input type="file" accept="text/plain" onchange="openFile(event)" id="fileChooser" style="display: none"></input>
 <button onclick="document.getElementById('fileChooser').click();" style="float: right" id="chooseFlightPlanBtn">Choose Faulty Plan</button>
-<button onclick="fixBrokenFlightPlan()" style="float: right; color: red" id="fixBtn">Fix</button>
+<button onclick="portFix()" style="float: right; color: red" id="fixBtn" disabled="true">Port Fix</button>
 
 <script type="text/javascript">
 /*
@@ -134,22 +134,37 @@ function addFixedFlightPlan() {
 		var tmpMarker = new L.marker(coordinates);
 		tmpMarker.addTo(window.maps[1]); //add marker to fixed flight plan
 	};
+	
+	var brokenRepresentationWaypoints = window.mapRepresentations[0]["waypoints"];
+	var fixedRepresentationWaypoints = window.mapRepresentations[1]["waypoints"];
 
-	for (var i = window.mapRepresentations[1]["waypoints"].length - 1; i >= 0; i--) {
-		for (var j = window.mapRepresentations[0]["waypoints"].length - 1; j >= 0; j--) {
-			console.log(window.mapRepresentations[0]["waypoints"][j] + "   " + window.mapRepresentations[1]["waypoints"][i]);
+	fixCoordinates = fixedRepresentationWaypoints;
+
+	for (var i = fixedRepresentationWaypoints.length - 1; i >= 0; i--) {
+		for (var j = brokenRepresentationWaypoints.length - 1; j >= 0; j--) {
+			if(coordsAreEqual(fixedRepresentationWaypoints[i], brokenRepresentationWaypoints[j])) {
+				var idx = fixCoordinates.indexOf(fixedRepresentationWaypoints[i]);
+				if(idx > -1) {
+					fixCoordinates.splice(idx, 1);
+				}
+			}
 		}
 	}
+	console.log(fixCoordinates);
+	console.log(window.mapRepresentations[0]["waypoints"]);
+	console.log(window.mapRepresentations[1]["waypoints"]);
 
-	fixCoordinates = $(window.mapRepresentations[1]["waypoints"]).not(window.mapRepresentations[0]["waypoints"]).get();
+	//fixCoordinates = $(window.mapRepresentations[1]["waypoints"]).not(window.mapRepresentations[0]["waypoints"]).get();
+
 
 	for (var i = fixCoordinates.length - 1; i >= 0; i--) {
-		for (var j = window.mapRepresentations[1]["waypoints"].length - 1; j >= 0; j--) {
-			if(coordsAreEqual(fixCoordinates[i], window.mapRepresentations[1]["waypoints"][j])) {
+		for (var j = fixedRepresentationWaypoints.length - 1; j >= 0; j--) {
+			if(coordsAreEqual(fixCoordinates[i], fixedRepresentationWaypoints[j])) {
 				insertIdxs.push(j);
 			}
 		};
 	};
+
 	// after comparing broken coords and fix coords we find the odd coordinate out and declare that as the fix
 	flightPlanFix["coordinates"] = fixCoordinates; //save coordinates for fixing
 	flightPlanFix["insertIdxs"] = insertIdxs; //save the index in which fix was inserted
@@ -162,7 +177,7 @@ function addFixedFlightPlan() {
 //used to add all other maps
 function addFlightPlan() {
 	console.log(getMapCount());
-	var newRow = window.table.insertRow(getMapCount() - 2);
+	var newRow = window.table.insertRow(window.table.rows.length);
 	var leftCell = newRow.insertCell(0);
 	leftCell.innerHTML = "<div id=\"map" + getMapCount().toString() + "\" style=\"width: 650px; height: 400px;\"></div>"; //make a cell for the map
 	window.maps.push(new L.map("map" + getMapCount().toString()).setView(window.mapRepresentations[getMapCount() - 1]["center"], 18));
@@ -178,20 +193,23 @@ function addFlightPlan() {
 	};
 	onMapClick(undefined, window.latField.value, window.lonField.value);
 	document.getElementById("fixBtn").style.color = "green";
+	document.getElementById("chooseFlightPlanBtn").disabled = true;
+	document.getElementById("fixBtn").disabled = false;
 }
 
-function fixBrokenFlightPlan() {
+function portFix() {
 	//broken flight plan is added, now we can apply the fix
-	var rightCell = window.table.rows[getMapCount() - 2].insertCell(1);
-	window.mapRepresentations.push(new Object()); //add representation of fixed plan
+	var rightCell = window.table.rows[window.table.rows.length - 1].insertCell(1);
+	window.mapRepresentations.push(new Object());
+	window.mapRepresentations[getMapCount() - 1]["center"] = window.mapRepresentations[getMapCount() - 2]["center"];
 	rightCell.innerHTML = "<div id=\"map" + getMapCount().toString() + "\" style=\"width: 650px; height: 400px;\"></div>"; //make a cell for the map
-	window.maps.push(new L.map("map" + getMapCount().toString()).setView(window.mapRepresentations[getMapCount() - 2]["center"], 18));
+	window.maps.push(new L.map("map" + getMapCount().toString()).setView(window.mapRepresentations[getMapCount() - 1]["center"], 18));
 	window.maps[getMapCount() - 1].on('click', onMapClick);
 	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     	attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     	maxZoom: 25
 	}).addTo(window.maps[getMapCount() - 1]);
-
+	window.mapRepresentations[getMapCount() - 1]["center"] = window.mapRepresentations[getMapCount() - 2]["center"];
 	window.mapRepresentations[getMapCount() - 1]["waypoints"] = window.mapRepresentations[getMapCount() - 2]["waypoints"];
 
 	for (var i = window.flightPlanFix["coordinates"].length - 1; i >= 0; i--) {
@@ -207,7 +225,8 @@ function fixBrokenFlightPlan() {
 
 	onMapClick(undefined, window.latField.value, window.lonField.value);
 	document.getElementById("fixBtn").style.color = "red";
-
+	document.getElementById("chooseFlightPlanBtn").disabled = false;
+	document.getElementById("fixBtn").disabled = true;
 }
 
 function onMapClick(e, lat, lon) {
