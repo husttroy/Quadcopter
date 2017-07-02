@@ -109,8 +109,9 @@ function addBrokenFlightPlan() {
 	for (var i = window.mapRepresentations[0]["waypoints"].length - 1; i >= 0; i--) {
 		var coordinates = window.mapRepresentations[0]["waypoints"][i]; //["34.1, 99.111"]
 		var tmpMarker = new L.marker(coordinates);
-		tmpMarker.addTo(window.maps[0]); //add marker to broken flight plan
+		tmpMarker.addTo(window.maps[0]).bindPopup(i.toString()).openPopup(); //add marker to broken flight plan
 	};
+	var polyline = L.polyline(window.mapRepresentations[0]["waypoints"], {color: 'blue'}).addTo(maps[getMapCount() - 1]);
 	alert("To adjust the attack circle, use the text fields and click 'Update'.");
 	onMapClick(undefined, window.latField.value, window.lonField.value);
 	document.getElementById("chooseFlightPlanBtn").firstChild.data = "Choose Fixed Plan";
@@ -132,13 +133,16 @@ function addFixedFlightPlan() {
 	for (var i = window.mapRepresentations[1]["waypoints"].length - 1; i >= 0; i--) {
 		var coordinates = window.mapRepresentations[1]["waypoints"][i]; //["34.1, 99.111"]
 		var tmpMarker = new L.marker(coordinates);
-		tmpMarker.addTo(window.maps[1]); //add marker to fixed flight plan
+		tmpMarker.addTo(window.maps[1]).bindPopup(i.toString()).openPopup(); //add marker to fixed flight plan
 	};
 	
+	var polyline = L.polyline(window.mapRepresentations[1]["waypoints"], {color: 'blue'}).addTo(maps[getMapCount() - 1]);
+
+
 	var brokenRepresentationWaypoints = window.mapRepresentations[0]["waypoints"];
 	var fixedRepresentationWaypoints = window.mapRepresentations[1]["waypoints"];
 
-	fixCoordinates = fixedRepresentationWaypoints;
+	fixCoordinates = fixedRepresentationWaypoints.slice(); //copy fixed flight plan waypoints to fix array
 
 	for (var i = fixedRepresentationWaypoints.length - 1; i >= 0; i--) {
 		for (var j = brokenRepresentationWaypoints.length - 1; j >= 0; j--) {
@@ -150,12 +154,6 @@ function addFixedFlightPlan() {
 			}
 		}
 	}
-	console.log(fixCoordinates);
-	console.log(window.mapRepresentations[0]["waypoints"]);
-	console.log(window.mapRepresentations[1]["waypoints"]);
-
-	//fixCoordinates = $(window.mapRepresentations[1]["waypoints"]).not(window.mapRepresentations[0]["waypoints"]).get();
-
 
 	for (var i = fixCoordinates.length - 1; i >= 0; i--) {
 		for (var j = fixedRepresentationWaypoints.length - 1; j >= 0; j--) {
@@ -189,8 +187,9 @@ function addFlightPlan() {
 	for (var i = window.mapRepresentations[getMapCount() - 1]["waypoints"].length - 1; i >= 0; i--) {
 		var coordinates = window.mapRepresentations[getMapCount() - 1]["waypoints"][i]; //["34.1, 99.111"]
 		var tmpMarker = new L.marker(coordinates);
-		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
+		tmpMarker.addTo(window.maps[getMapCount() - 1]).bindPopup(i.toString()).openPopup(); //add marker to broken flight plan
 	};
+	var polyline = L.polyline(window.mapRepresentations[getMapCount() - 1]["waypoints"], {color: 'blue'}).addTo(maps[getMapCount() - 1]);
 	onMapClick(undefined, window.latField.value, window.lonField.value);
 	document.getElementById("fixBtn").style.color = "green";
 	document.getElementById("chooseFlightPlanBtn").disabled = true;
@@ -220,9 +219,9 @@ function portFix() {
 	for (var i = window.mapRepresentations[getMapCount() - 1]["waypoints"].length - 1; i >= 0; i--) {
 		var coordinates = window.mapRepresentations[getMapCount() - 1]["waypoints"][i]; //["34.1, 99.111"]
 		var tmpMarker = new L.marker(coordinates);
-		tmpMarker.addTo(window.maps[getMapCount() - 1]); //add marker to broken flight plan
+		tmpMarker.addTo(window.maps[getMapCount() - 1]).bindPopup(i.toString()).openPopup(); //add marker to broken flight plan
 	};
-
+	var polyline = L.polyline(window.mapRepresentations[getMapCount() - 1]["waypoints"], {color: 'blue'}).addTo(maps[getMapCount() - 1]);
 	onMapClick(undefined, window.latField.value, window.lonField.value);
 	document.getElementById("fixBtn").style.color = "red";
 	document.getElementById("chooseFlightPlanBtn").disabled = false;
